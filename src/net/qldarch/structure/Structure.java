@@ -22,7 +22,6 @@ import net.qldarch.archobj.ArchObj;
 import net.qldarch.guice.Guice;
 import net.qldarch.util.DateUtil;
 import net.qldarch.util.ObjUtils;
-import net.qldarch.util.UpdateUtils;
 
 @Entity
 @Table(name="structure")
@@ -81,7 +80,7 @@ public class Structure extends ArchObj {
   @Override
   public boolean updateFrom(Map<String, Object> m) {
     boolean changed = super.updateFrom(m);
-    if(UpdateUtils.hasChanged(m, LOCATION, location)) {
+    if(hasChanged(m, LOCATION, location)) {
       changed = true;
       location = ObjUtils.asString(m.get(LOCATION));
     }

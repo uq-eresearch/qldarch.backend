@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DateUtil {
 
+  public static final String YYYY_MM_DD = "yyyy-MM-dd";
+
   public static java.sql.Date toSqlDate(Date date) {
     return date!=null?new java.sql.Date(date.getTime()):null;
   }

@@ -40,7 +40,7 @@ public class WsRevertArchObj {
       final Map<String, Object> m = UpdateUtils.asMap(params);
       if(archobj != null) {
         final Long reqVersion = ObjUtils.asLong(m.get("version"));
-        if(reqVersion != null) {
+        if(reqVersion != null && !reqVersion.equals(archobj.getVersion())) {
           ArchObjVersion version = hs.get(ArchObjVersion.class, reqVersion);
           if(version != null) {
             archobj.copyFrom(version.getDocumentAsMap());

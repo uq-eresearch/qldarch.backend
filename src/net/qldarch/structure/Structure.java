@@ -1,6 +1,7 @@
 package net.qldarch.structure;
 
 import static net.qldarch.util.UpdateUtils.hasChanged;
+import static net.qldarch.util.UpdateUtils.hasChangedDouble;
 
 import java.sql.Date;
 import java.util.Map;
@@ -15,11 +16,10 @@ import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.math.DoubleMath;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.qldarch.archobj.ArchObj;
+import net.qldarch.guice.Guice;
 import net.qldarch.util.DateUtil;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
@@ -90,18 +90,14 @@ public class Structure extends ArchObj {
       changed = true;
       completion = DateUtil.toSqlDate(ObjUtils.asDate(m.get(COMPLETION), "yyyy-MM-dd"));
     }
-    
-// FIXME if the key is not in the map ignore other set to null if not already null. also latitude/longitude can be already null and the code below throws NPE in this case!
-//    if((m.get(LATITUDE) != null) && !DoubleMath.fuzzyEquals(
-//        ObjUtils.asDouble(m.get(LATITUDE)), latitude, 0.00001)) {
-//      changed = true;
-//      latitude = ObjUtils.asDouble(m.get(LATITUDE));
-//    }
-//    if((m.get(LONGITUDE) != null) && !DoubleMath.fuzzyEquals(
-//        ObjUtils.asDouble(m.get(LONGITUDE)), longitude, 0.00001)) {
-//      changed = true;
-//      longitude = ObjUtils.asDouble(m.get(LONGITUDE));
-//    }
+    if(hasChangedDouble(m, LATITUDE, latitude)) {
+      changed = true;
+      latitude = ObjUtils.asDouble(m.get(LATITUDE));
+    }
+    if(hasChangedDouble(m, LONGITUDE, longitude)) {
+      changed = true;
+      longitude = ObjUtils.asDouble(m.get(LONGITUDE));
+    }
     if(hasChanged(m, AUSTRALIAN, ObjUtils::asBoolean, australian)) {
       final Boolean b = ObjUtils.asBoolean(m.get(AUSTRALIAN));
       if(b!=null) {
@@ -116,10 +112,11 @@ public class Structure extends ArchObj {
         demolished = b;
       }
     }
-    // FIXME foreign key is missing buildingtypology for column typology references buildingtypologytype(type)
-    if(hasChanged(m, TYPOLOGIES, o->ObjUtils.asSet(o), typologies)) {
+    if(hasChanged(m, TYPOLOGIES, o->Guice.injector().getInstance(BuildingTypologies.class).filter(
+        ObjUtils.asStringSet(o)), typologies)) {
       changed = true;
-      typologies = (Set<String>)ObjUtils.asStringSet(m.get(TYPOLOGIES));
+      this.typologies = Guice.injector().getInstance(BuildingTypologies.class).filter(
+          ObjUtils.asStringSet(m.get(TYPOLOGIES)));
     }
     return changed;
   }

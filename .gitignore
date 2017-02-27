@@ -1,0 +1,5 @@
+build/
+ivy/
+.classpath
+.project
+bin/

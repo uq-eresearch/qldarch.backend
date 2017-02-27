@@ -23,7 +23,7 @@ public class UpdateArchObjJob extends CancelableIndexUpdateJob {
           writer.addDocument(DocumentUtils.createDocument(m));
         }
       } catch(Exception e) {
-        throw new RuntimeException("failed to update index with archive object "+archobj.getId());
+        throw new RuntimeException("failed to update index with archive object "+archobj.getId(), e);
       }
     }
   }

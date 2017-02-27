@@ -2,8 +2,11 @@ package net.qldarch.search.update;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.DateTools;
@@ -17,6 +20,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
 import lombok.extern.slf4j.Slf4j;
+import net.qldarch.util.ObjUtils;
 
 @Slf4j
 public class DocumentUtils {
@@ -87,6 +91,11 @@ public class DocumentUtils {
         all.append(d2s);
       } else if(v instanceof Boolean) {
         doc.add(new StringField(name, v.toString(), store?Field.Store.YES:Field.Store.NO));
+      } else if(v instanceof Collection) {
+        final String content = ((Collection<?>)v).stream().map(ObjUtils::asString).filter(
+            Objects::nonNull).collect(Collectors.joining(", "));
+        all.append(content);
+        doc.add(new TextField(name, content, store?Field.Store.YES:Field.Store.NO));
       } else {
         log.warn("unknown type for field '{}' type '{}'", name, v.getClass().getName());
         continue;

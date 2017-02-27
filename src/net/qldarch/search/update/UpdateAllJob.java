@@ -79,27 +79,29 @@ public class UpdateAllJob extends CancelableIndexUpdateJob {
 
   @Override
   public void run(IndexWriter writer) {
-    try {
-      log.info("start search index update all");
-      if(!isCanceled()) {
-        writer.deleteAll();
+    hs.executeVoid(session -> {
+      try {
+        log.info("start search index update all");
+        if(!isCanceled()) {
+          writer.deleteAll();
+        }
+        if(!isCanceled()) {
+          updateArchObjs(writer);
+        }
+        if(!isCanceled()) {
+          updateMedia(writer);
+        }
+        if(!isCanceled()) {
+          writer.commit();
+          log.info("finished search index update all");
+        } else {
+          writer.rollback();
+          log.info("canceled search index update all");
+        }
+        writer.close();
+      } catch(Exception e) {
+        throw new RuntimeException("failed search index update all run", e);
       }
-      if(!isCanceled()) {
-        updateArchObjs(writer);
-      }
-      if(!isCanceled()) {
-        updateMedia(writer);
-      }
-      if(!isCanceled()) {
-        writer.commit();
-        log.info("finished search index update all");
-      } else {
-        writer.rollback();
-        log.info("canceled search index update all");
-      }
-      writer.close();
-    } catch(Exception e) {
-      throw new RuntimeException("failed search index update all run", e);
-    }
+    });
   }
 }

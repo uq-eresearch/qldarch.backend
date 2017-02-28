@@ -38,13 +38,9 @@ public class DocumentUtils {
         //log.debug("ignoring field {} (null)", name);
         continue;
       }
-      if(StringUtils.equals(ALL, name)) {
-        if(v != null) {
-          all.append((String)v);
-        }
-        continue;
-      }
-      if(v instanceof Number) {
+      if((StringUtils.equals(ALL, name)) && (v instanceof String)) {
+        all.append((String)v);
+      } else if(v instanceof Number) {
         if(v instanceof Double || v instanceof Float) {
           final double doubleVal = ((Number)v).doubleValue();
           doc.add(new DoublePoint(name, doubleVal));

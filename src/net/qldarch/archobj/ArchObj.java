@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -43,7 +45,7 @@ public class ArchObj implements Updatable {
   private static final String SUMMARY = "summary";
   private static final String NOTE = "note";
 
-  @Id
+  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long id;
 
   private Long version;

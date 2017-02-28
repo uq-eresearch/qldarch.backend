@@ -14,8 +14,14 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.qldarch.gson.JsonSkipField;
+import net.qldarch.gson.serialize.CollectionRemoveNullsSerializer;
+import net.qldarch.gson.serialize.JsonSerializer;
 import net.qldarch.hibernate.HS;
+import net.qldarch.interview.InterviewUtteranceSerializer;
+import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
+import net.qldarch.media.Media;
 import net.qldarch.security.UpdateEntity;
 import net.qldarch.security.User;
 import net.qldarch.util.M;
@@ -36,6 +42,14 @@ public class WsUpdateArchObj {
   @Consumes("application/x-www-form-urlencoded")
   @Produces(ContentType.JSON)
   @UpdateEntity(entityClass=ArchObj.class)
+  @JsonSkipField(type=Media.class, field="depicts")
+  @JsonSerializer(type=Utterance.class, serializer=InterviewUtteranceSerializer.class)
+  @JsonSerializer(path="$.precededby", serializer=SimpleArchObjSerializer.class)
+  @JsonSerializer(path="$.succeededby", serializer=SimpleArchObjSerializer.class)
+  @JsonSerializer(path="$.interviews", serializer=CollectionRemoveNullsSerializer.class)
+  @JsonSerializer(path="$.interviews.*", serializer=IdArchObjSerializer.class)
+  @JsonSerializer(path="$.interviewer.*", serializer=SimpleArchObjSerializer.class)
+  @JsonSerializer(path="$.interviewee.*", serializer=SimpleArchObjSerializer.class)
   public Response post(@PathParam("id") Long id, MultivaluedMap<String, Object> params) {
     return hs.execute(session -> {
       final ArchObj archobj = hs.get(ArchObj.class, id);

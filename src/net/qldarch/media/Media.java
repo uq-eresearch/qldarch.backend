@@ -104,6 +104,9 @@ public class Media {
     Map<String, Object> m = new LinkedHashMap<>();
     m.put("id", id);
     m.put("label", label);
+    if(depicts != null) {
+      m.put("depicts", depicts.getId());
+    }
     m.put("description", description);
     m.put("filename", filename);
     m.put("mimetype", mimetype);

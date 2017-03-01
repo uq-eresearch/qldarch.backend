@@ -30,7 +30,6 @@ import net.qldarch.guice.Bind;
 import net.qldarch.hibernate.HS;
 import net.qldarch.resteasy.Lifecycle;
 import net.qldarch.util.Md5HashUtil;
-import net.qldarch.util.MimeUtils;
 
 @Bind
 @Singleton
@@ -51,7 +50,7 @@ public class ThumbnailCache implements Lifecycle {
   private HS hs;
 
   @Inject
-  private MimeUtils mimetypes;
+  private Mimetypes mimetypes;
 
   @Inject
   private MediaArchive archive;
@@ -98,7 +97,7 @@ public class ThumbnailCache implements Lifecycle {
   }
 
   private File thumbnailFile(Media media, Dimension d) {
-    final String suffix = mimetypes.getSuffix(media.getMimetype());
+    final String suffix = mimetypes.suffix(media.getMimetype());
     if(StringUtils.isBlank(suffix)) {
       throw new RuntimeException(String.format("failed to determine suffix for mimetype %s (media %s)",
           media.getMimetype(), media.getId()));
@@ -197,7 +196,7 @@ public class ThumbnailCache implements Lifecycle {
               synchronized(tnPromises) {
                 tnPromises.remove(key);
               }
-              log.debug("finihsed thumbnail for media id '{}', dimension '{}x{}'",
+              log.debug("finished thumbnail for media id '{}', dimension '{}x{}'",
                   media.getId(), d.width, d.height);
             }
           });

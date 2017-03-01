@@ -21,7 +21,6 @@ import net.qldarch.openstack.Keystone;
 import net.qldarch.openstack.ObjectStore;
 import net.qldarch.resteasy.Lifecycle;
 import net.qldarch.util.M;
-import net.qldarch.util.MimeUtils;
 
 @Singleton
 @Bind
@@ -41,7 +40,7 @@ public class ObjectStoreSync implements Lifecycle {
   private MediaArchive archive;
 
   @Inject
-  private MimeUtils mimeutils;
+  private Mimetypes mimetypes ;
 
   @Inject @Cfg("os.tenant")
   private transient String tenant;
@@ -207,7 +206,7 @@ public class ObjectStoreSync implements Lifecycle {
           return file;
         } else {
           log.debug("hash collision detected on media file with id {}", file.id);
-          final String suffix = mimeutils.getSuffix(file.mimetype);
+          final String suffix = mimetypes.suffix(file.mimetype);
           if(StringUtils.isBlank(suffix)) {
             log.warn("failed to determine suffix for mimetype {}", file.mimetype);
             return null;

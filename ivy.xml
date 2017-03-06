@@ -63,6 +63,7 @@
     <exclude org="org.slf4j" module="slf4j-simple"/>
     <exclude org="javax.persistence"/>
     <exclude org="javax.servlet"/>
+    <exclude org="javax.el"/>
     <exclude org="log4j" module="log4j"/>
     <exclude org="junit" module="junit"/>
     <exclude org="org.jboss.spec.javax.servlet"/>

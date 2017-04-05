@@ -9,6 +9,8 @@ import javax.inject.Singleton;
 
 import net.qldarch.guice.Bind;
 
+import org.apache.tika.Tika;
+
 @Bind
 @Singleton
 public class Mimetypes {
@@ -37,7 +39,12 @@ public class Mimetypes {
 
   public String mimetype(File f) {
     try {
-      return Files.probeContentType(f.toPath());
+      String mimetype = Files.probeContentType(f.toPath());
+      if(mimetypes.containsKey(mimetype)) {
+        return mimetype;
+      } else {
+        return new Tika().detect(f);
+      }
     } catch(Exception e) {
       return null;
     }

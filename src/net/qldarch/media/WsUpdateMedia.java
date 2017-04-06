@@ -36,15 +36,33 @@ public class WsUpdateMedia {
       if(media != null) {
         if(user.isAdmin() || user.getId().equals(media.getOwner())) {
           final Map<String, Object> m = UpdateUtils.asMap(params);
-          media.setLabel(ObjUtils.asString(m.get("label")));
-          media.setDescription(ObjUtils.asString(m.get("description")));
-          media.setType(MediaType.valueOf(ObjUtils.asString(m.get("type"))));
-          media.setCreator(ObjUtils.asString(m.get("creator")));
-          media.setCreated(DateUtil.toSqlDate(ObjUtils.asDate(m.get("created"), "yyyy-MM-dd")));
-          media.setRights(ObjUtils.asString(m.get("rights")));
-          media.setIdentifier(ObjUtils.asString(m.get("identifier")));
-          media.setLocation(ObjUtils.asString(m.get("location")));
-          media.setProjectnumber(ObjUtils.asString(m.get("projectnumber")));
+          if(m.containsKey("label")) {
+            media.setLabel(ObjUtils.asString(m.get("label")));
+          }
+          if(m.containsKey("description")) {
+            media.setDescription(ObjUtils.asString(m.get("description")));
+          }
+          if(m.containsKey("type")) {
+            media.setType(MediaType.valueOf(ObjUtils.asString(m.get("type"))));
+          }
+          if(m.containsKey("creator")) {
+            media.setCreator(ObjUtils.asString(m.get("creator")));
+          }
+          if(m.containsKey("created")) {
+            media.setCreated(DateUtil.toSqlDate(ObjUtils.asDate(m.get("created"), "yyyy-MM-dd")));
+          }
+          if(m.containsKey("rights")) {
+            media.setRights(ObjUtils.asString(m.get("rights")));
+          }
+          if(m.containsKey("identifier")) {
+            media.setIdentifier(ObjUtils.asString(m.get("identifier")));
+          }
+          if(m.containsKey("location")) {
+            media.setLocation(ObjUtils.asString(m.get("location")));
+          }
+          if(m.containsKey("projectnumber")) {
+            media.setProjectnumber(ObjUtils.asString(m.get("projectnumber")));
+          }
           hs.update(media);
           return Response.ok().build();
         }

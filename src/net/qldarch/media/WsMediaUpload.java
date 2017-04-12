@@ -117,8 +117,14 @@ public class WsMediaUpload {
     }
     if(temp != null) {
       try {
-        final String mimetype = mimetypes.mimetype(temp);
-        final String suffix = mimetypes.suffix(mimetype);
+        String mimetype = mimetypes.mimetype(temp);
+        String suffix = mimetypes.suffix(mimetype);
+        if(StringUtils.contains(mimetype, "image/tiff") || suffix.toLowerCase().equals("tiff")
+            || suffix.toLowerCase().equals("tif")) {
+          temp = new TiffConverterToPng(temp).getOutput();
+          mimetype = mimetypes.mimetype(temp);
+          suffix = mimetypes.suffix(mimetype);
+        }
         final String hash = md5Hash(temp);
         final long filesize = temp.length();
         if(StringUtils.isNotBlank(hash) && StringUtils.isNotBlank(suffix) &&

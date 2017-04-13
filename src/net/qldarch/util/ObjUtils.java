@@ -106,4 +106,19 @@ public class ObjUtils {
     }
   }
 
+  public static Integer asInteger(Object o) {
+    if(o == null) {
+      return null;
+    } else if(o instanceof Number) {
+      return ((Number) o).intValue();
+    } else if(o instanceof String) {
+      try {
+        return new Integer((String) o);
+      } catch(Exception e) {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 }

@@ -106,6 +106,16 @@ public class ObjUtils {
     }
   }
 
+  public static Set<Long> asLongSet(Object o) {
+    if(o instanceof Collection) {
+      return ((Collection<?>)o).stream().map(ObjUtils::asLong).collect(Collectors.toSet());
+    } else if(o != null) {
+      return Collections.singleton(ObjUtils.asLong(o));
+    } else {
+      return null;
+    }
+  }
+
   public static Integer asInteger(Object o) {
     if(o == null) {
       return null;

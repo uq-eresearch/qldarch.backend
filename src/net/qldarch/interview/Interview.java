@@ -2,6 +2,7 @@ package net.qldarch.interview;
 
 import static net.qldarch.util.UpdateUtils.hasChanged;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -29,6 +30,8 @@ import net.qldarch.util.ObjUtils;
 public class Interview extends ArchObj {
 
   private static final String LOCATION = "location";
+  private static final String INTERVIEWEE = "interviewee";
+  private static final String INTERVIEWER = "interviewer";
 
   private String location;
 
@@ -66,6 +69,30 @@ public class Interview extends ArchObj {
       changed = true;
       location = ObjUtils.asString(m.get(LOCATION));
     }
+    if(hasChanged(m, INTERVIEWEE, interviewee)) {
+      changed = true;
+      Set<Long> intvwees = ObjUtils.asLongSet(m.get(INTERVIEWEE));
+      interviewee = new HashSet<>();
+      if(intvwees != null) {
+        for(Long e : intvwees) {
+          Person p = new Person();
+          p.setId(e);
+          interviewee.add(p);
+        }
+      }
+    }
+    if(hasChanged(m, INTERVIEWER, interviewer)) {
+      changed = true;
+      Set<Long> intvwers = ObjUtils.asLongSet(m.get(INTERVIEWER));
+      interviewer = new HashSet<>();
+      if(intvwers != null) {
+        for(Long r : intvwers) {
+          Person p = new Person();
+          p.setId(r);
+          interviewer.add(p);
+        }
+      }
+    }
     return changed;
   }
 
@@ -73,6 +100,28 @@ public class Interview extends ArchObj {
   public void copyFrom(Map<String, Object> m) {
     super.copyFrom(m);
     location = ObjUtils.asString(m.get(LOCATION));
+    Set<Long> intvwees = ObjUtils.asLongSet(m.get(INTERVIEWEE));
+    Set<Long> intvwers = ObjUtils.asLongSet(m.get(INTERVIEWER));
+    if(intvwees != null && interviewee == null) {
+      interviewee = new HashSet<>();
+    }
+    if(intvwers != null && interviewer == null) {
+      interviewer = new HashSet<>();
+    }
+    if(intvwees != null) {
+      for(Long e : intvwees) {
+        Person p = new Person();
+        p.setId(e);
+        interviewee.add(p);
+      }
+    }
+    if(intvwers != null) {
+      for(Long r : intvwers) {
+        Person p = new Person();
+        p.setId(r);
+        interviewer.add(p);
+      }
+    }
   }
 
 }

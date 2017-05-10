@@ -3,6 +3,8 @@ package net.qldarch.interview;
 import java.util.SortedSet;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,7 +23,7 @@ import net.qldarch.relationship.TranscriptRelationship;
 @EqualsAndHashCode(of={"id"})
 public class Utterance implements Comparable<Utterance> {
 
-  @Id
+  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne

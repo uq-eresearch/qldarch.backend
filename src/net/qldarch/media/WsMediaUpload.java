@@ -4,7 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
@@ -25,9 +31,15 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 import net.qldarch.archobj.ArchObj;
 import net.qldarch.configuration.Cfg;
 import net.qldarch.hibernate.HS;
+import net.qldarch.interview.Interview;
+import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
+import net.qldarch.person.Person;
 import net.qldarch.security.SignedIn;
 import net.qldarch.security.User;
+import net.qldarch.transcript.Exchange;
+import net.qldarch.transcript.ParseResult;
+import net.qldarch.transcript.Transcripts;
 import net.qldarch.util.ContentDispositionSupport;
 import net.qldarch.util.ObjUtils;
 
@@ -50,6 +62,9 @@ public class WsMediaUpload {
   private Mimetypes mimetypes;
 
   private AtomicInteger tmpfilename = new AtomicInteger();
+
+  @Inject
+  private Transcripts transcripts;
 
   private File saveTemp(InputStream in) {
     try {
@@ -158,6 +173,26 @@ public class WsMediaUpload {
           }
           media.setOwner(user.getId());
           hs.save(media);
+          if(isIntvwTscp(temp)) {
+            Interview interview = hs.get(Interview.class, depicts);
+            Set<Person> speakers = new HashSet<>();
+            for(Person e : interview.getInterviewee()) {
+              speakers.add(e);
+            }
+            for(Person r : interview.getInterviewer()) {
+              speakers.add(r);
+            }
+            ParseResult pr = transcripts.parse(temp);
+            List<Exchange> exchanges = pr.getTranscript().getExchanges();
+            for(Exchange exchange : exchanges) {
+              Utterance utterance = new Utterance();
+              utterance.setInterview(interview);
+              utterance.setSpeaker(selectPerByInit(speakers, exchange.getSpeaker()));
+              utterance.setTime(Math.toIntExact(exchange.getSeconds()));
+              utterance.setTranscript(exchange.getTranscript());
+              hs.save(utterance);
+            }
+          }
           return Response.ok().entity(media).build();
         } else {
           return Response.status(400).entity(String.format(
@@ -171,5 +206,36 @@ public class WsMediaUpload {
       }
     }
     return Response.status(400).build();
+  }
+
+  private boolean isIntvwTscp(File f) {
+    boolean isIntvwTscp = false;
+    try {
+      String line = new LineNumberReader(transcripts.reader(f)).readLine();
+      if(StringUtils.startsWith(line.toLowerCase(), "interview")) {
+        isIntvwTscp = true;
+      }
+    } catch(Exception e) {
+      throw new RuntimeException("is interview transcripts reader failed: ", e);
+    }
+    return isIntvwTscp;
+  }
+
+  private double maxPerLblByStrDist(Set<Person> persons, String str) {
+    List<Double> distances = new ArrayList<Double>();
+    for(Person p : persons) {
+      distances.add(StringUtils.getJaroWinklerDistance(p.getLabel(), str));
+    }
+    return Collections.max(distances);
+  }
+
+  private Person selectPerByInit(Set<Person> persons, String initial) {
+    double maxDistance = maxPerLblByStrDist(persons, initial);
+    for(Person p : persons) {
+      if(maxDistance == StringUtils.getJaroWinklerDistance(p.getLabel(), initial)) {
+        return p;
+      }
+    }
+    return new Person();
   }
 }

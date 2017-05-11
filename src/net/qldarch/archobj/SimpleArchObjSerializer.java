@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import net.qldarch.gson.serialize.Context;
 import net.qldarch.gson.serialize.Serializer;
 import net.qldarch.media.Media;
+import net.qldarch.person.Person;
 
 public class SimpleArchObjSerializer implements Serializer {
 
@@ -26,6 +27,12 @@ public class SimpleArchObjSerializer implements Serializer {
         jsonObject.addProperty("id", ao.getId());
         jsonObject.addProperty("label", ao.getLabel());
         jsonObject.addProperty("media", preferredImageId(ao));
+        if(ao.getType() != null) {
+          jsonObject.addProperty("type", ao.getType().toString());
+        }
+        if(ao instanceof Person) {
+          jsonObject.addProperty("architect", ((Person) ao).isArchitect());
+        }
         return jsonObject;
       }
     } else {

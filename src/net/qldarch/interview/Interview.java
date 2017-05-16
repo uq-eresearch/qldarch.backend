@@ -50,7 +50,7 @@ public class Interview extends ArchObj {
   private Set<Person> interviewer;
 
   @OneToMany(mappedBy="interview")
-  @OrderBy("time")
+  @OrderBy("time, id")
   private SortedSet<Utterance> transcript;
 
   @Override

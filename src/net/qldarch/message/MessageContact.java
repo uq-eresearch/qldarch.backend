@@ -1,11 +1,16 @@
 package net.qldarch.message;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 
 import javax.inject.Inject;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import net.qldarch.configuration.Cfg;
 import net.qldarch.guice.Bind;
 import net.qldarch.security.UserStore;
 
@@ -18,29 +23,35 @@ public class MessageContact {
   @Inject
   private UserStore users;
 
+  @Inject @Cfg("smtp.host")
+  private String smtpHost;
+
   public MessageContactResponse send(String content, String senderName, String from, boolean newsletter) {
     try {
-      String msgsubject = "[QLDArch.net] Message from " + senderName + " <" + from + ">";
-      log.info("message subject: {}", msgsubject);
-      String msgcontent = (content + (newsletter ? "<br/>(Please send me the latest news via email)"
-          : StringUtils.EMPTY)).replace("\n", "<br/>");
-      log.info("message content: {}", msgcontent);
-      List<String> contacts = new ArrayList<>();
+      String subject = "[QLDArch.net] Message from " + senderName + " <" + from + ">";
+      String msg = (content + (newsletter ? "<br/>(Please send me the latest news via email)" : StringUtils.EMPTY))
+          .replace("\n", "<br/>");
+      final Properties properties = new Properties();
+      properties.setProperty("mail.smtp.host", smtpHost);
+      Session session = Session.getDefaultInstance(properties);
+      MimeMessage message = new MimeMessage(session);
       users.all().forEach(user -> {
         if(user.isContact()) {
           try {
-            contacts.add(user.getEmail());
-            log.info("added user to contacts: {}", user.getEmail());
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
           } catch(Exception e) {
-            log.warn("adding user to contacts failed", e);
+            log.warn("adding a contact to recipient failed", e);
           }
         }
       });
-      Email.send(contacts, msgsubject, msgcontent);
-      return new MessageContactResponse(true, "ok");
+      message.setFrom(new InternetAddress("no-reply@qldarch.net"));
+      message.setSubject(subject);
+      message.setContent(msg, "text/html; charset=utf-8");
+      Transport.send(message);
+      return MessageContactResponse.ok();
     } catch(Exception e) {
       log.warn("message contact failed", e);
-      return MessageContactResponse.failed("message contact failed, unknown reason");
+      return MessageContactResponse.failed("message contact failed");
     }
   }
 }

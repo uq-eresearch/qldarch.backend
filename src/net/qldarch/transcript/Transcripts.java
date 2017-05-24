@@ -30,11 +30,9 @@ public class Transcripts {
   public Reader reader(File f) throws Exception {
     String mimetype = mimetypes.mimetype(f);
     String suffix = mimetypes.suffix(mimetype);
-    if(StringUtils.contains(mimetype, "application/msword")
-        || suffix.toLowerCase().equals("doc")
-        || StringUtils
-            .contains(mimetype, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-        || suffix.toLowerCase().equals("docx")) {
+    if((mimetype != null && (StringUtils.contains(mimetype, "application/msword") || StringUtils.contains(mimetype,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document")))
+        || (suffix != null && (suffix.toLowerCase().equals("doc") || suffix.toLowerCase().equals("docx")))) {
       ParseContext c = new ParseContext();
       Detector detector = new DefaultDetector();
       Parser p = new AutoDetectParser(detector);

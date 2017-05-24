@@ -41,6 +41,7 @@ import net.qldarch.transcript.Exchange;
 import net.qldarch.transcript.ParseResult;
 import net.qldarch.transcript.Transcripts;
 import net.qldarch.util.ContentDispositionSupport;
+import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 
 @Path("media/upload")
@@ -101,7 +102,7 @@ public class WsMediaUpload {
   @SignedIn
   public Response upload(MultipartInput input) {
     if(user.isReader()) {
-      return Response.status(403).build();
+      return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
     }
     Long depicts = null;
     String filename = null;
@@ -152,7 +153,7 @@ public class WsMediaUpload {
               path = String.format("%s.%s", randomString(), suffix);
               fArchive = archive.getLocalFile(path);
               if(fArchive.exists()) {
-                return Response.status(500).build();
+                return Response.status(500).entity(M.of("msg", "Media archive error")).build();
               }
               FileUtils.moveFile(temp, fArchive);
             }
@@ -195,9 +196,9 @@ public class WsMediaUpload {
           }
           return Response.ok().entity(media).build();
         } else {
-          return Response.status(400).entity(String.format(
+          return Response.status(400).entity(M.of("msg", String.format(
               "hash '%s', suffix '%s', label '%s', type '%s'",
-              hash, suffix, label, type)).build();
+              hash, suffix, label, type))).build();
         }
       } catch(Exception e) {
         throw new RuntimeException("file upload failed", e);
@@ -205,7 +206,7 @@ public class WsMediaUpload {
         FileUtils.deleteQuietly(temp);
       }
     }
-    return Response.status(400).build();
+    return Response.status(400).entity(M.of("msg", "Missing or unknown file, or bad request")).build();
   }
 
   private boolean isIntvwTscp(File f) {

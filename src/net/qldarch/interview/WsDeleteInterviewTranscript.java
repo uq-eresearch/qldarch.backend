@@ -58,18 +58,18 @@ public class WsDeleteInterviewTranscript {
               m.setDeleted(new Timestamp(Instant.now().toEpochMilli()));
               hs.update(m);
             }
-            return Response.ok().build();
+            return Response.ok().entity(M.of("id", interview.getId(), "label", interview.getLabel())).build();
           } else {
-            return Response.status(404).entity("{\"reason\":\"transcript file is not found\"}").build();
+            return Response.status(404).entity(M.of("msg", "Transcript file not found")).build();
           }
         } else {
-          return Response.status(409).entity("{\"reason\":\"interview has relationship\"}").build();
+          return Response.status(409).entity(M.of("msg", "Relationship detected")).build();
         }
       } else {
-        return Response.status(404).entity("{\"reason\":\"interview is missing or unknown\"}").build();
+        return Response.status(404).entity(M.of("msg", "Missing or unknown interview")).build();
       }
     } else {
-      return Response.status(403).entity("{\"reason\":\"user is not an admin\"}").build();
+      return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
     }
   }
 }

@@ -25,6 +25,7 @@ import net.qldarch.jaxrs.ContentType;
 import net.qldarch.media.Media;
 import net.qldarch.security.UpdateEntity;
 import net.qldarch.security.User;
+import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
 
@@ -51,14 +52,14 @@ public class WsCreateArchObj {
   @JsonSerializer(path="$.interviewee.*", serializer=SimpleArchObjSerializer.class)
   public Response create(MultivaluedMap<String, Object> params) {
     if((user != null) && (user.isAdmin() || user.isEditor())) {
-      final Map<String, Object> m = UpdateUtils.asMap(params); 
+      final Map<String, Object> m = UpdateUtils.asMap(params);
       final ArchObjType type = ArchObjType.of(ObjUtils.asString(m.get("type")));
       if(type == null) {
-        return Response.status(400).entity("type is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown type")).build();
       }
       final String label = ObjUtils.asString(m.get("label"));
       if(StringUtils.isBlank(label)) {
-        return Response.status(400).entity("label is missing").build();
+        return Response.status(400).entity(M.of("msg", "Missing label")).build();
       }
       try {
         ArchObj object = type.getImplementingClass().newInstance();
@@ -72,7 +73,7 @@ public class WsCreateArchObj {
         throw new RuntimeException("failed to create archive object", e);
       }
     } else {
-      return Response.status(403).build();
+      return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
     }
   }
 

@@ -49,7 +49,7 @@ public class WsArchObj {
     final ArchObj archobj = hs.get(ArchObj.class, id);
     if(archobj != null) {
       if(archobj.isDeleted()) {
-        return Response.status(404).build();
+        return Response.status(404).entity(M.of("msg","Archive object deleted")).build();
       }
       archobj.setRelationships(
           db.executeQuery(new Sql(this).prepare(), M.of("id", archobj.getId()), Rsc::fetchAll));
@@ -63,7 +63,9 @@ public class WsArchObj {
       if(archobj instanceof Interview) {
         transcriptSetup.setup((Interview)archobj);
       }
+      return Response.ok().entity(archobj).build();
+    } else {
+      return Response.status(404).entity(M.of("msg", "Archive object not found")).build();
     }
-    return Response.ok().entity(archobj).build();
   }
 }

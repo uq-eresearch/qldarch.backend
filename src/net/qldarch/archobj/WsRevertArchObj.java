@@ -49,12 +49,12 @@ public class WsRevertArchObj {
                 String.format("revert to version '%s'", version.getId()));
             hs.update(archobj);
           } else {
-            return Response.status(404).entity(M.of("msg","version not found")).build();
+            return Response.status(404).entity(M.of("msg","Version not found")).build();
           }
         }
-        return Response.ok().entity(archobj).build();
+        return Response.ok().entity(M.of("id", archobj.getId(), "label", archobj.getLabel())).build();
       } else {
-        return Response.status(404).build();
+        return Response.status(404).entity(M.of("msg","Archive object not found")).build();
       }
     });
   }

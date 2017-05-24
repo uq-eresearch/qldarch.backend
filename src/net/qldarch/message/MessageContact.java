@@ -51,7 +51,7 @@ public class MessageContact {
       return MessageContactResponse.ok();
     } catch(Exception e) {
       log.warn("message contact failed", e);
-      return MessageContactResponse.failed("message contact failed");
+      return MessageContactResponse.failed("Message contact failed");
     }
   }
 }

@@ -74,7 +74,7 @@ public class WsUpdateArchObj {
             }
             return Response.ok().entity(archobj).build();
           } else {
-            return Response.status(404).entity(M.of("msg","version not found")).build();
+            return Response.status(404).entity(M.of("msg","Version not found")).build();
           }
         } else {
           // create an initial version in the version history if it does not exist yet
@@ -89,7 +89,7 @@ public class WsUpdateArchObj {
         }
         return Response.ok().entity(archobj).build();
       } else {
-        return Response.status(404).build();
+        return Response.status(404).entity(M.of("msg","Archive object not found")).build();
       }
     });
   }

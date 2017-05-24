@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import net.qldarch.hibernate.HS;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.security.User;
+import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
 
@@ -40,16 +41,16 @@ public class WsCreateRelationship {
       final long subject = ObjUtils.asLong(m.get("subject"));
       final long object = ObjUtils.asLong(m.get("object"));
       if(type == null) {
-        return Response.status(400).entity("type is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown type")).build();
       }
       if(source == null) {
-        return Response.status(400).entity("source is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown source")).build();
       }
       if(subject == 0L) {
-        return Response.status(400).entity("subject is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown subject")).build();
       }
       if(object == 0L) {
-        return Response.status(400).entity("object is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown object")).build();
       }
       try {
         Relationship relationship = new Relationship();
@@ -74,7 +75,7 @@ public class WsCreateRelationship {
         throw new RuntimeException("failed to create relationship object", e);
       }
     } else {
-      return Response.status(403).build();
+      return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
     }
   }
 

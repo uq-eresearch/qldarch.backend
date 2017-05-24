@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import net.qldarch.hibernate.HS;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.security.User;
+import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
 
@@ -42,25 +43,25 @@ public class WsCreateInterviewRelationship {
       final long interview = ObjUtils.asLong(m.get("interview"));
       final long utterance = ObjUtils.asLong(m.get("utterance"));
       if(type == null) {
-        return Response.status(400).entity("type is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown type")).build();
       }
       if(source == null) {
-        return Response.status(400).entity("source is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown source")).build();
       }
       if(source != RelationshipSource.interview) {
-        return Response.status(400).entity("source is not interview").build();
+        return Response.status(400).entity(M.of("msg", "Non-interview source")).build();
       }
       if(subject == 0L) {
-        return Response.status(400).entity("subject is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown subject")).build();
       }
       if(object == 0L) {
-        return Response.status(400).entity("object is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown object")).build();
       }
       if(interview == 0L) {
-        return Response.status(400).entity("interview is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown interview")).build();
       }
       if(utterance == 0L) {
-        return Response.status(400).entity("utterance is missing or unknown").build();
+        return Response.status(400).entity(M.of("msg", "Missing or unknown utterance")).build();
       }
       try {
         InterviewRelationship interviewrelationship = new InterviewRelationship();
@@ -87,7 +88,7 @@ public class WsCreateInterviewRelationship {
         throw new RuntimeException("failed to create interview relationship object", e);
       }
     } else {
-      return Response.status(403).build();
+      return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
     }
   }
 

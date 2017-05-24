@@ -31,6 +31,7 @@ import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
 import net.qldarch.hibernate.HS;
 import net.qldarch.jaxrs.ResponseHeader;
+import net.qldarch.util.M;
 
 @Path("media")
 @Slf4j
@@ -50,7 +51,7 @@ public class WsMedia {
   }
   
   private Response notFound() {
-    return Response.status(Status.NOT_FOUND).build();
+    return Response.status(Status.NOT_FOUND).entity(M.of("msg", "Media not found")).build();
   }
 
   private Long parseLong(String s) {
@@ -108,7 +109,7 @@ public class WsMedia {
                 String.format("bytes %s-%s/%s", start, end, contentLength)).tag(etag).build();
       } catch(Exception e) {
         log.debug("caught exception while doing partial media response, sending 416", e);
-        return Response.status(416).build();
+        return Response.status(416).entity(M.of("msg", "Caught exception: " + e)).build();
       }
     }
   }

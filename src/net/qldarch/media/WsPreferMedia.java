@@ -8,11 +8,14 @@ import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import net.qldarch.hibernate.HS;
+import net.qldarch.jaxrs.ContentType;
 import net.qldarch.security.SignedIn;
 import net.qldarch.security.User;
+import net.qldarch.util.M;
 
 @Path("media/prefer")
 public class WsPreferMedia {
@@ -27,6 +30,7 @@ public class WsPreferMedia {
   @POST
   @Path("/{id}")
   @SignedIn
+  @Produces(ContentType.JSON)
   public Response post(@PathParam("id") Long id) {
     if(user != null) {
       Media media = hs.get(Media.class, id);
@@ -34,13 +38,13 @@ public class WsPreferMedia {
         if(user.isAdmin() || user.getId().equals(media.getOwner())) {
           media.setPreferred(new Timestamp(Instant.now().toEpochMilli()));
           hs.update(media);
-          return Response.ok().build();
+          return Response.ok().entity(M.of("id", media.getId(), "filename", media.getFilename())).build();
         }
       } else {
-        Response.status(404).build();
+        return Response.status(404).entity(M.of("msg", "Media not found")).build();
       }
     }
-    return Response.status(403).build();
+    return Response.status(403).entity(M.of("msg", "Unauthorised user")).build();
   }
 
 }

@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 
 import net.qldarch.hibernate.HS;
 import net.qldarch.util.ContentDispositionSupport;
+import net.qldarch.util.M;
 
 @Path("media/download")
 public class WsMediaDownload {
@@ -26,7 +27,7 @@ public class WsMediaDownload {
   private MediaArchive archive;
 
   private Response notFound() {
-    return Response.status(Status.NOT_FOUND).build();
+    return Response.status(Status.NOT_FOUND).entity(M.of("msg", "Media not found")).build();
   }
 
   private StreamingOutput stream(InputStream in) {

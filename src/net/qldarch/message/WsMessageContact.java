@@ -60,20 +60,17 @@ public class WsMessageContact {
           } else {
             verRecaptcha.close();
             return Response.status(Status.BAD_REQUEST)
-                .entity(new MessageContactResponse(false, "verifiying recaptcha unsuccessful")).build();
+                .entity(new MessageContactResponse(false, "Verifiying recaptcha unsuccessful")).build();
           }
         } catch(JSONException e) {
           verRecaptcha.close();
-          return Response
-              .status(Status.BAD_REQUEST)
-              .entity(
-                  new MessageContactResponse(false, "failed to parse verified recaptcha response to json: "
-                      + e.toString())).build();
+          return Response.status(Status.BAD_REQUEST)
+              .entity(new MessageContactResponse(false, "Caught JSONException: " + e.toString())).build();
         }
       } else {
         verRecaptcha.close();
         return Response.status(Status.BAD_REQUEST)
-            .entity(new MessageContactResponse(false, "verifiying recaptcha failed")).build();
+            .entity(new MessageContactResponse(false, "Verifiying recaptcha failed")).build();
       }
     } catch(Exception e) {
       return Response.status(Status.BAD_REQUEST).entity(new MessageContactResponse(false, e.toString())).build();

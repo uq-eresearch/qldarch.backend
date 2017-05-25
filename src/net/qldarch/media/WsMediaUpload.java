@@ -174,7 +174,7 @@ public class WsMediaUpload {
           }
           media.setOwner(user.getId());
           hs.save(media);
-          if(isIntvwTscp(temp)) {
+          if(isIntvwTscp(fArchive)) {
             Interview interview = hs.get(Interview.class, depicts);
             Set<Person> speakers = new HashSet<>();
             for(Person e : interview.getInterviewee()) {
@@ -183,7 +183,7 @@ public class WsMediaUpload {
             for(Person r : interview.getInterviewer()) {
               speakers.add(r);
             }
-            ParseResult pr = transcripts.parse(temp);
+            ParseResult pr = transcripts.parse(fArchive);
             List<Exchange> exchanges = pr.getTranscript().getExchanges();
             for(Exchange exchange : exchanges) {
               Utterance utterance = new Utterance();

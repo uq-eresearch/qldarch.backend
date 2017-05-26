@@ -171,7 +171,8 @@ public class ThumbnailCache implements Lifecycle {
           t = createThumbnailBean(f, media, d);
         }
         final CompletableFuture<Thumbnail> cf = new CompletableFuture<>();
-        if((t != null) && f.exists()) {
+        int smallestSize = 125;
+        if((t != null) && f.exists() && f.length() >= smallestSize) {
           t.setContentprovider(content(f));
           cf.complete(t);
         } else {
@@ -180,7 +181,7 @@ public class ThumbnailCache implements Lifecycle {
             try {
               log.debug("create thumbnail for media id '{}', dimension '{}x{}'",
                   media.getId(), d.width, d.height);
-              if(!f.exists()) {
+              if(!f.exists() || f.length() < smallestSize) {
                 createThumbnailFile(media, d);
               }
               Thumbnail thumbnail = getThumbnailBean(media, d);

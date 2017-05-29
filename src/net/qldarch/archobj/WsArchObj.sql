@@ -20,6 +20,7 @@ select
   o.type as objecttype,
   op.practicedinqueensland as objectpracticedinqueensland,
   op.architect as objectarchitect,
+  os.completion as objectcompletion,
   r.source,
   ir.interview,
   ir.utterance,
@@ -30,6 +31,7 @@ from
   left join person sp on s.id = sp.id
   join archobj o on r.object = o.id
   left join person op on o.id = op.id
+  left join structure os on o.id = os.id
   left join interviewrelationship ir on r.id = ir.id
   left join images on r.object = images.depicts
 where
@@ -52,6 +54,7 @@ select
   o.type as objecttype,
   op.practicedinqueensland as objectpracticedinqueensland,
   op.architect as objectarchitect,
+  os.completion as objectcompletion,
   r.source,
   ir.interview,
   ir.utterance,
@@ -62,6 +65,7 @@ from
   left join person sp on s.id = sp.id
   join archobj o on r.object = o.id
   left join person op on o.id = op.id
+  left join structure os on o.id = os.id
   left join interviewrelationship ir on r.id = ir.id
   left join images on r.subject = images.depicts
 where

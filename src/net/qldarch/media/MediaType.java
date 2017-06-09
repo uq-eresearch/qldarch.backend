@@ -11,6 +11,7 @@ public enum MediaType {
   Text,
   Youtube,
   Audio,
+  Video,
   ;
 
   public static boolean equalsAny(MediaType type, MediaType... search) {

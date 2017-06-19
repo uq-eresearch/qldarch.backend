@@ -172,8 +172,13 @@ public class ObjectStoreSync implements Lifecycle {
   }
 
   private FileInfo info(String filename) {
-    log.debug("fetching file info {} from object store", filename);
-    return objectstore.info(token, filename);
+    try {
+      final FileInfo info = objectstore.info(token, filename);
+      log.debug("fetched file info '{}' from object store for filename '{}'", info, filename);
+      return info;
+    } catch(Exception e) {
+      throw new RuntimeException(String.format("fetching file info for '%s' failed", filename), e);
+    }
   }
 
   private boolean signin() {

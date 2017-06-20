@@ -16,6 +16,7 @@ import net.qldarch.archobj.ArchObj;
 import net.qldarch.gson.JsonExclude;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.annotations.Where;
 
@@ -24,6 +25,7 @@ import org.hibernate.annotations.Where;
 @Data
 @EqualsAndHashCode(of={"id"})
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class TimelineEvent {
 
   @Id

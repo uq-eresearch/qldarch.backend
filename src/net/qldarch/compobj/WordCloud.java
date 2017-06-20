@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import net.qldarch.gson.JsonExclude;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 @Entity
@@ -20,6 +21,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @Data
 @EqualsAndHashCode(of={"id"})
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class WordCloud {
 
   @Id

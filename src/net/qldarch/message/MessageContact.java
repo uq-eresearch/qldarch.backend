@@ -28,7 +28,7 @@ public class MessageContact {
 
   public MessageContactResponse send(String content, String senderName, String from, boolean newsletter) {
     try {
-      String subject = "[QLDArch.net] Message from " + senderName + " <" + from + ">";
+      String subject = "Qldarch Message from " + senderName + " <" + from + ">";
       String msg = (content + (newsletter ? "<br/>(Please send me the latest news via email)" : StringUtils.EMPTY))
           .replace("\n", "<br/>");
       final Properties properties = new Properties();

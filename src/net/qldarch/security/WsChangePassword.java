@@ -13,7 +13,7 @@ import net.qldarch.hibernate.HS;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.credential.DefaultPasswordService;
 
-@Path("/account/password")
+@Path("/account/password/change")
 @Slf4j
 public class WsChangePassword {
 

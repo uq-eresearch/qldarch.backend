@@ -37,6 +37,9 @@ public class SignUp {
   @Inject
   private UserStore users;
 
+  @Inject @Cfg("smtp.host")
+  private String smtpHost;
+
   private String activationCode() {
     return rstr.next();
   }
@@ -48,7 +51,7 @@ public class SignUp {
   private void sendActivationEmail(final String email, final long id, final String activationCode) {
     try {
       final Properties properties = new Properties();
-      properties.setProperty("mail.smtp.host", "smtp.uq.edu.au");
+      properties.setProperty("mail.smtp.host", smtpHost);
       Session session = Session.getDefaultInstance(properties);  
       MimeMessage message = new MimeMessage(session);  
       message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));

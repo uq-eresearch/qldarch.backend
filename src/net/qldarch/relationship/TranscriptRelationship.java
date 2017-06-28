@@ -21,9 +21,17 @@ public class TranscriptRelationship implements Comparable<TranscriptRelationship
 
   private String subjectlabel;
 
+  private String subjecttype;
+
+  private boolean subjectarchitect;
+
   private Long object;
 
   private String objectlabel;
+
+  private String objecttype;
+
+  private boolean objectarchitect;
 
   private Long utterance;
 
@@ -33,7 +41,7 @@ public class TranscriptRelationship implements Comparable<TranscriptRelationship
   public int compareTo(TranscriptRelationship tr1) {
     if((this.created != null) && (tr1.created != null)) {
       return this.created.compareTo(tr1.created);
-    } else if((this.created == null) && (tr1.created==null)) {
+    } else if((this.created == null) && (tr1.created == null)) {
       return 0;
     } else if((this.created == null)) {
       return -1;

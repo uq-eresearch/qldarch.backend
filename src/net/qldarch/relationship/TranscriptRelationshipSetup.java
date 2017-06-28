@@ -74,6 +74,11 @@ public class TranscriptRelationshipSetup {
     }
   }
 
+  private boolean getBoolean(Map<String, Object> m, String key) {
+    Object o = m.get(key);
+    return (o instanceof Boolean)?(Boolean)o:false;
+  }
+
   private TranscriptRelationship createTR(Map<String, Object> m) {
     final TranscriptRelationship r = new TranscriptRelationship();
     r.setId(getLongNotNull(m, "relationshipId"));
@@ -83,8 +88,12 @@ public class TranscriptRelationshipSetup {
     r.setUntil(getInt(m, "untilyear"));
     r.setSubject(getLongNotNull(m, "subject"));
     r.setSubjectlabel(getStringNotNull(m, "subjectlabel"));
+    r.setSubjecttype(getStringNotNull(m, "subjecttype"));
+    r.setSubjectarchitect(getBoolean(m, "subjectarchitect"));
     r.setObject(getLongNotNull(m, "object"));
     r.setObjectlabel(getStringNotNull(m, "objectlabel"));
+    r.setObjecttype(getStringNotNull(m, "objecttype"));
+    r.setObjectarchitect(getBoolean(m, "objectarchitect"));
     r.setUtterance(getLongNotNull(m, "utterance"));
     r.setCreated(getTimestampNotNull(m, "created"));
     return r;

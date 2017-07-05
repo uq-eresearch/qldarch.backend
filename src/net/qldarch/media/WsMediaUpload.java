@@ -184,7 +184,7 @@ public class WsMediaUpload {
           }
           media.setOwner(user.getId());
           hs.save(media);
-          if(isIntvwTscp(fArchive)) {
+          if(media.getType().equals(MediaType.Transcript) && isIntvwTscp(fArchive)) {
             Interview interview = hs.get(Interview.class, depicts);
             Set<Person> speakers = new HashSet<>();
             for(Person e : interview.getInterviewee()) {

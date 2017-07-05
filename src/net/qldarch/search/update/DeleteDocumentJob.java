@@ -1,5 +1,6 @@
 package net.qldarch.search.update;
 
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -14,15 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DeleteDocumentJob extends CancelableIndexUpdateJob {
 
-  private final String id;
+  private final Long id;
 
   private final String type;
 
-  private Query query(String id, String type) {
-    return new BooleanQuery.Builder()
-        .add(new TermQuery(new Term("id", id)), BooleanClause.Occur.MUST)
-        .add(new TermQuery(new Term("type", type)), BooleanClause.Occur.MUST)
-        .build();
+  private Query query(Long id, String type) {
+    BooleanQuery.Builder builder = new BooleanQuery.Builder();
+    Query i = LongPoint.newExactQuery("id", id);
+    Query t = new TermQuery(new Term("type", type));
+    builder.add(i, BooleanClause.Occur.MUST);
+    builder.add(t, BooleanClause.Occur.MUST);
+    return builder.build();
   }
 
   @Override

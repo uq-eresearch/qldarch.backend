@@ -63,7 +63,7 @@ public class UpdateMediaJob extends CancelableIndexUpdateJob {
     if(media != null) {
       try {
         if(!isCanceled()) {
-          new DeleteDocumentJob(media.getId().toString(), media.getType().toString()).run(writer);
+          new DeleteDocumentJob(media.getId(), media.getType().toString()).run(writer);
           Map<String, Object> m = media.asMap();
           final String text = getText(media);
           if(StringUtils.isNotBlank(text)) {

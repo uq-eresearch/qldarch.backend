@@ -21,7 +21,7 @@ public class UpdateArchObjJob extends CancelableIndexUpdateJob {
     if(archobj != null) {
       try {
         if(!isCanceled()) {
-          new DeleteDocumentJob(archobj.getId().toString(), archobj.getType().toString()).run(writer);
+          new DeleteDocumentJob(archobj.getId(), archobj.getType().toString()).run(writer);
           Map<String, Object> m = archobj.asMap();
           m.put("category", "archobj");
           if(archobj instanceof Interview) {

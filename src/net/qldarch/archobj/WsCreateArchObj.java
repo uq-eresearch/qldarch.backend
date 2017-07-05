@@ -1,5 +1,6 @@
 package net.qldarch.archobj;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Map;
@@ -23,11 +24,19 @@ import net.qldarch.interview.InterviewUtteranceSerializer;
 import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.media.Media;
+import net.qldarch.search.Index;
+import net.qldarch.search.update.UpdateArchObjJob;
 import net.qldarch.security.UpdateEntity;
 import net.qldarch.security.User;
 import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
 
 @Path("/archobj")
 public class WsCreateArchObj {
@@ -37,6 +46,9 @@ public class WsCreateArchObj {
 
   @Inject @Nullable
   private User user;
+
+  @Inject
+  private Index index;
 
   @PUT
   @Consumes("application/x-www-form-urlencoded")
@@ -68,6 +80,18 @@ public class WsCreateArchObj {
         object.setOwner(user.getId());
         object.setCreated(new Date(Instant.now().toEpochMilli()));
         hs.save(object);
+        Analyzer analyzer = new StandardAnalyzer();
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        try(Directory directory = index.directory()) {
+          try(IndexWriter writer = new IndexWriter(directory, config)) {
+            new UpdateArchObjJob(object).run(writer);
+            writer.commit();
+          } catch(Exception e) {
+            throw new RuntimeException("update search index failed", e);
+          }
+        } catch(IOException e) {
+          throw new RuntimeException("failed to open search directory", e);
+        }
         return Response.ok().entity(object).build();
       } catch(Exception e) {
         throw new RuntimeException("failed to create archive object", e);

@@ -1,5 +1,6 @@
 package net.qldarch.archobj;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -22,11 +23,19 @@ import net.qldarch.interview.InterviewUtteranceSerializer;
 import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.media.Media;
+import net.qldarch.search.Index;
+import net.qldarch.search.update.UpdateArchObjJob;
 import net.qldarch.security.UpdateEntity;
 import net.qldarch.security.User;
 import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
 
 @Path("/archobj")
 public class WsUpdateArchObj {
@@ -36,6 +45,9 @@ public class WsUpdateArchObj {
 
   @Inject @Nullable
   private User user;
+
+  @Inject
+  private Index index;
 
   @POST
   @Path("/{id}")
@@ -69,6 +81,7 @@ public class WsUpdateArchObj {
                 String.format("%s (%s)", comment, revertComment);
               VersionUtils.createNewVersion(hs, user, archobj, newComment);
               hs.update(archobj);
+              updateIndex(archobj);
             } else {
               throw new RuntimeException("no change detected, rollback revert to ealier version");
             }
@@ -81,10 +94,12 @@ public class WsUpdateArchObj {
           if(archobj.getVersion() == null) {
             VersionUtils.createNewVersion(hs, user, archobj, "initial version");
             hs.update(archobj);
+            updateIndex(archobj);
           }
           if(archobj.updateFrom(m)) {
             VersionUtils.createNewVersion(hs, user, archobj, comment);
             hs.update(archobj);
+            updateIndex(archobj);
           }
         }
         return Response.ok().entity(archobj).build();
@@ -92,6 +107,23 @@ public class WsUpdateArchObj {
         return Response.status(404).entity(M.of("msg","Archive object not found")).build();
       }
     });
+  }
+
+  private void updateIndex(ArchObj archobj) {
+    if(archobj != null) {
+      Analyzer analyzer = new StandardAnalyzer();
+      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+      try(Directory directory = index.directory()) {
+        try(IndexWriter writer = new IndexWriter(directory, config)) {
+          new UpdateArchObjJob(archobj).run(writer);
+          writer.commit();
+        } catch(Exception e) {
+          throw new RuntimeException("update search index failed", e);
+        }
+      } catch(IOException e) {
+        throw new RuntimeException("failed to open search directory", e);
+      }
+    }
   }
 
 }

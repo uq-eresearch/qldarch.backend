@@ -25,6 +25,11 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInput;
 
@@ -35,6 +40,8 @@ import net.qldarch.interview.Interview;
 import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.person.Person;
+import net.qldarch.search.Index;
+import net.qldarch.search.update.UpdateMediaJob;
 import net.qldarch.security.SignedIn;
 import net.qldarch.security.User;
 import net.qldarch.transcript.Exchange;
@@ -66,6 +73,9 @@ public class WsMediaUpload {
 
   @Inject
   private Transcripts transcripts;
+
+  @Inject
+  private Index index;
 
   private File saveTemp(InputStream in) {
     try {
@@ -193,6 +203,18 @@ public class WsMediaUpload {
               utterance.setTranscript(exchange.getTranscript());
               hs.save(utterance);
             }
+          }
+          Analyzer analyzer = new StandardAnalyzer();
+          IndexWriterConfig config = new IndexWriterConfig(analyzer);
+          try(Directory directory = index.directory()) {
+            try(IndexWriter writer = new IndexWriter(directory, config)) {
+              new UpdateMediaJob(media, archive).run(writer);
+              writer.commit();
+            } catch(Exception e) {
+              throw new RuntimeException("update search index failed", e);
+            }
+          } catch(IOException e) {
+            throw new RuntimeException("failed to open search directory", e);
           }
           return Response.ok().entity(media).build();
         } else {

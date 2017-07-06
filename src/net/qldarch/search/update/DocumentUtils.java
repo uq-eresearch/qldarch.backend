@@ -2,6 +2,7 @@ package net.qldarch.search.update;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.Field;
@@ -76,13 +76,13 @@ public class DocumentUtils {
         doc.add(new TextField(name, (String)v, store?Field.Store.YES:Field.Store.NO));
         all.append(v);
       } else if(v instanceof Date) {
-        DateTools.Resolution resolution;
+        SimpleDateFormat sdf;
         if(v instanceof java.sql.Date) {
-          resolution = DateTools.Resolution.DAY;
+          sdf = new SimpleDateFormat("yyyyMMdd");
         } else {
-          resolution = DateTools.Resolution.SECOND;
+          sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         }
-        String d2s = DateTools.timeToString(((Date)v).getTime(), resolution);
+        String d2s = sdf.format(v);
         doc.add(new TextField(name, d2s, store?Field.Store.YES:Field.Store.NO));
         all.append(d2s);
       } else if(v instanceof Boolean) {

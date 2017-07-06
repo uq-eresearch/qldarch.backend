@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import lombok.Getter;
 import net.qldarch.db.Db;
 import net.qldarch.db.Rsc;
 import net.qldarch.guice.Bind;
@@ -18,6 +19,7 @@ public class BuildingTypologies implements Lifecycle {
   @Inject
   private Db db;
 
+  @Getter
   private Set<String> types;
 
   public Set<String> filter(Set<String> typologies) {

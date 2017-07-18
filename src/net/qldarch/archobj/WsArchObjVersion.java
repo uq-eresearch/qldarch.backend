@@ -35,9 +35,12 @@ public class WsArchObjVersion {
     try {
       if(user != null && user.isAdmin()) {
         final Map<String, Object> m = UpdateUtils.asMap(params);
-        return db.executeQuery(
-            "select * from archobjversion where created >= '" + ObjUtils.asString(m.get("startdate"))
-                + " 00:00' and created <= '" + ObjUtils.asString(m.get("enddate")) + " 24:00'", Rsc::fetchAll);
+        if(m.containsKey("oid")) {
+          return fromOid(ObjUtils.asLong(m.get("oid")));
+        }
+        if(m.containsKey("startdate") && m.containsKey("enddate")) {
+          return fromDates(ObjUtils.asString(m.get("startdate")), ObjUtils.asString(m.get("enddate")));
+        }
       } else {
         log.debug("user {} is not admin", user);
       }
@@ -46,4 +49,24 @@ public class WsArchObjVersion {
     }
     return null;
   }
+
+  private List<Map<String, Object>> fromDates(String startDate, String endDate) {
+    try {
+      return db.executeQuery("select * from archobjversion where created >= '" + startDate
+          + " 00:00' and created <= '" + endDate + " 24:00'", Rsc::fetchAll);
+    } catch(Exception e) {
+      log.debug("retrieving archobj version by created dates failed for user {} ", user, e);
+    }
+    return null;
+  }
+
+  private List<Map<String, Object>> fromOid(Long oId) {
+    try {
+      return db.executeQuery("select * from archobjversion where oid = " + oId, Rsc::fetchAll);
+    } catch(Exception e) {
+      log.debug("retrieving archobj version by oid failed for user {} ", user, e);
+    }
+    return null;
+  }
+
 }

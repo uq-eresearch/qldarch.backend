@@ -3,6 +3,9 @@ with images as (
   where depicts is not null and deleted is null and
   type in ('Photograph', 'Portrait', 'Image', 'LineDrawing')
   order by depicts, preferred desc nulls last, media.id
+), typologies as (
+  select distinct on (structure) structure, typology from buildingtypology
+  order by structure
 )
 select
   r.id as relationshipId,
@@ -24,7 +27,8 @@ select
   r.source,
   ir.interview,
   ir.utterance,
-  images.id as media
+  images.id as media,
+  typologies.typology
 from
   relationship r
   join archobj s on r.subject = s.id
@@ -34,6 +38,7 @@ from
   left join structure os on o.id = os.id
   left join interviewrelationship ir on r.id = ir.id
   left join images on r.object = images.depicts
+  left join typologies on r.object = typologies.structure
 where
   r.subject = :id and
   o.deleted is null
@@ -58,7 +63,8 @@ select
   r.source,
   ir.interview,
   ir.utterance,
-  images.id as media
+  images.id as media,
+  typologies.typology
 from
   relationship r
   join archobj s on r.subject = s.id
@@ -68,6 +74,7 @@ from
   left join structure os on o.id = os.id
   left join interviewrelationship ir on r.id = ir.id
   left join images on r.subject = images.depicts
+  left join typologies on r.subject = typologies.structure
 where
   r.object = :id and
   s.deleted is null

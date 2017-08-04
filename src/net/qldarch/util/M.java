@@ -60,6 +60,13 @@ public class M {
     return m;
   }
 
+  public static <K,V> Map<K,V> of(K k1, V v1, K k2, V v2, K k3, V v3,
+      K k4, V v4, K k5, V v5, K k6, V v6, K k7, V v7, K k8, V v8, K k9, V v9) {
+    Map<K,V> m = of(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8);
+    m.put(k9, v9);
+    return m;
+  }
+
   @SafeVarargs
   public static <K, V> Map<K,V> copyOf(Map<K,V> map, K... keys) {
     Map<K,V> m = new LinkedHashMap<>();

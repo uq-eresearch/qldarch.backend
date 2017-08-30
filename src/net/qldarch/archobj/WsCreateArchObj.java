@@ -80,6 +80,7 @@ public class WsCreateArchObj {
         object.setOwner(user.getId());
         object.setCreated(new Date(Instant.now().toEpochMilli()));
         hs.save(object);
+        VersionUtils.createNewVersion(hs, user, object, "initial version");
         Analyzer analyzer = new StandardAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         try(Directory directory = index.directory()) {

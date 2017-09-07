@@ -57,6 +57,8 @@
 
     <dependency org="org.hibernate" name="hibernate-core" rev="5.2.6.Final" />
 
+    <dependency org="com.github.dfabulich" name="sitemapgen4j" rev="1.0.6"/>
+
     <exclude org="org.apache.james" module="apache-mime4j-core"/>
     <exclude org="org.apache.james" module="apache-mime4j-dom"/>
     <exclude org="org.jboss.resteasy" module="resteasy-jaxb-provider"/>

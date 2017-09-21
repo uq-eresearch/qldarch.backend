@@ -68,41 +68,45 @@ public class WsUpdateArchObj {
       final Map<String, Object> m = UpdateUtils.asMap(params);
       final String comment = ObjUtils.asString(m.get("comment"));
       if(archobj != null) {
-        final Long reqVersion = ObjUtils.asLong(m.get("version"));
-        if((reqVersion != null) && !reqVersion.equals(archobj.getVersion()) && (archobj.getVersion() != null)) {
-          ArchObjVersion version = hs.get(ArchObjVersion.class, reqVersion);
-          if((version != null) && version.getOid().equals(archobj.getId())) {
-            archobj.copyFrom(version.getDocumentAsMap());
-            archobj.setVersion(version.getId());
-            if(archobj.updateFrom(m)) {
-              final String revertComment = String.format("reverting to version '%s' before change",
-                  version.getId());
-              final String newComment = StringUtils.isBlank(comment)?revertComment:
-                String.format("%s (%s)", comment, revertComment);
-              VersionUtils.createNewVersion(hs, user, archobj, newComment);
+        try {
+          final Long reqVersion = ObjUtils.asLong(m.get("version"));
+          if((reqVersion != null) && !reqVersion.equals(archobj.getVersion()) && (archobj.getVersion() != null)) {
+            ArchObjVersion version = hs.get(ArchObjVersion.class, reqVersion);
+            if((version != null) && version.getOid().equals(archobj.getId())) {
+              archobj.copyFrom(version.getDocumentAsMap());
+              archobj.setVersion(version.getId());
+              if(archobj.updateFrom(m)) {
+                final String revertComment = String.format("reverting to version '%s' before change",
+                    version.getId());
+                final String newComment = StringUtils.isBlank(comment)?revertComment:
+                  String.format("%s (%s)", comment, revertComment);
+                VersionUtils.createNewVersion(hs, user, archobj, newComment);
+                hs.update(archobj);
+                updateIndex(archobj);
+              } else {
+                throw new RuntimeException("no change detected, rollback revert to ealier version");
+              }
+              return Response.ok().entity(archobj).build();
+            } else {
+              return Response.status(404).entity(M.of("msg","Version not found")).build();
+            }
+          } else {
+            // create an initial version in the version history if it does not exist yet
+            if(archobj.getVersion() == null) {
+              VersionUtils.createNewVersion(hs, user, archobj, "initial version");
               hs.update(archobj);
               updateIndex(archobj);
-            } else {
-              throw new RuntimeException("no change detected, rollback revert to ealier version");
             }
-            return Response.ok().entity(archobj).build();
-          } else {
-            return Response.status(404).entity(M.of("msg","Version not found")).build();
+            if(archobj.updateFrom(m)) {
+              VersionUtils.createNewVersion(hs, user, archobj, comment);
+              hs.update(archobj);
+              updateIndex(archobj);
+            }
           }
-        } else {
-          // create an initial version in the version history if it does not exist yet
-          if(archobj.getVersion() == null) {
-            VersionUtils.createNewVersion(hs, user, archobj, "initial version");
-            hs.update(archobj);
-            updateIndex(archobj);
-          }
-          if(archobj.updateFrom(m)) {
-            VersionUtils.createNewVersion(hs, user, archobj, comment);
-            hs.update(archobj);
-            updateIndex(archobj);
-          }
+          return Response.ok().entity(archobj).build();
+        } finally {
+          archobj.postUpdate(m);
         }
-        return Response.ok().entity(archobj).build();
       } else {
         return Response.status(404).entity(M.of("msg","Archive object not found")).build();
       }

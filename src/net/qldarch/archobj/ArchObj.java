@@ -135,4 +135,8 @@ public class ArchObj implements Updatable {
 
   }
 
+  protected void postUpdate(Map<String, Object> m) {
+
+  }
+
 }

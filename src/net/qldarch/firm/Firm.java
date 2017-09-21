@@ -3,6 +3,8 @@ package net.qldarch.firm;
 import static net.qldarch.util.UpdateUtils.hasChanged;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -17,6 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.qldarch.archobj.ArchObj;
 import net.qldarch.guice.Guice;
 import net.qldarch.hibernate.HS;
+import net.qldarch.relationship.Relationship;
+import net.qldarch.relationship.RelationshipSource;
+import net.qldarch.relationship.RelationshipType;
+import net.qldarch.security.User;
 import net.qldarch.util.DateUtil;
 import net.qldarch.util.ObjUtils;
 
@@ -32,6 +38,7 @@ public class Firm extends ArchObj {
   private static final String END = "end";
   private static final String PRECEDEDBY = "precededby";
   private static final String SUCCEEDEDBY = "succeededby";
+  private static final String EMPLOYEES = "employees";
 
   private boolean australian;
 
@@ -123,4 +130,29 @@ public class Firm extends ArchObj {
     succeededby = loadFirm(ObjUtils.asLong(m.get(SUCCEEDEDBY)));
   }
 
+  private void addEmploymentRelationship(Long employeeId) {
+    if(employeeId != null) {
+      final HS hs = Guice.injector().getInstance(HS.class);
+      final User user = Guice.injector().getInstance(User.class);
+      Relationship r = new Relationship();
+      r.setObject(this.getId());
+      r.setSubject(employeeId);
+      r.setType(RelationshipType.Employment);
+      r.setSource(RelationshipSource.firm);
+      r.setOwner(user.getId());
+      r.setCreated(new Timestamp(System.currentTimeMillis()));
+      hs.save(r);
+    }
+  }
+
+  @Override
+  protected void postCreate(Map<String, Object> m) {
+    final Object o = m.get(EMPLOYEES);
+    if(o instanceof String) {
+      addEmploymentRelationship(ObjUtils.asLong(o));
+    } else if(o instanceof List) {
+      final List<?> l = (List<?>)o;
+      l.forEach(eId -> addEmploymentRelationship(ObjUtils.asLong(eId)));
+    }
+  }
 }

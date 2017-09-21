@@ -131,4 +131,8 @@ public class ArchObj implements Updatable {
     return (user != null) && (user.isAdmin() ||(user.isEditor() && (getLocked() == null)));
   }
 
+  protected void postCreate(Map<String, Object> m) {
+
+  }
+
 }

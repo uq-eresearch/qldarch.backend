@@ -2,6 +2,6 @@ package net.qldarch.relationship;
 
 public enum RelationshipSource {
 
-  interview, structure;
+  interview, structure, firm;
 
 }

@@ -31,6 +31,18 @@ public class Mimetypes {
     mimetypes.put("text/plain", "txt");
     mimetypes.put("audio/mpeg", "mp3");
     mimetypes.put("audio/ogg", "ogg");
+    mimetypes.put("video/x-flv", "flv");
+    mimetypes.put("video/mp4", "mp4");
+    mimetypes.put("application/x-mpegURL", "m3u8");
+    mimetypes.put("video/MP2T", "ts");
+    mimetypes.put("video/3gpp", "3gp");
+    mimetypes.put("video/quicktime", "mov");
+    mimetypes.put("video/x-msvideo", "avi");
+    mimetypes.put("video/x-ms-wmv", "wmv");
+    mimetypes.put("video/mpeg", "mpeg");
+    mimetypes.put("video/ogg", "ogv");
+    mimetypes.put("video/webm", "webm");
+    mimetypes.put("video/3gpp2", "3g2");
   }
 
   public String suffix(String mimetype) {

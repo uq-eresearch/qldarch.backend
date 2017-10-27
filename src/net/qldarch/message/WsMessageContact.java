@@ -5,16 +5,12 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import lombok.extern.slf4j.Slf4j;
 import net.qldarch.jaxrs.ContentType;
+import net.qldarch.security.Recaptcha;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +22,9 @@ public class WsMessageContact {
   @Inject
   private MessageContact msgcontact;
 
+  @Inject
+  private Recaptcha recaptcha;
+
   @POST
   @Produces(ContentType.JSON)
   public Response post(@FormParam("content") String content, @FormParam("firstname") String firstname,
@@ -33,7 +32,7 @@ public class WsMessageContact {
       @FormParam("newsletter") boolean newsletter, @FormParam("g-recaptcha-response") String gRecaptchaResponse) {
     log.info("Message: {}, from: {} {}<{}>", content, firstname, lastname, from);
     try {
-      Response verRecaptcha = verifyRecaptcha(gRecaptchaResponse);
+      Response verRecaptcha = recaptcha.verifyRecaptcha(gRecaptchaResponse);
       int status = verRecaptcha.getStatus();
       if(status != 200) {
         log.error("failed : http error code : {}", status);
@@ -75,15 +74,5 @@ public class WsMessageContact {
     } catch(Exception e) {
       return Response.status(Status.BAD_REQUEST).entity(new MessageContactResponse(false, e.toString())).build();
     }
-  }
-
-  private Response verifyRecaptcha(String gRecaptchaResponse) {
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target("https://www.google.com/recaptcha/api/siteverify");
-    Form form = new Form();
-    form.param("secret", "6Lc7wQkUAAAAALNXj5aKw9ljKrhtwG0nhFUA5yzV").param("response", gRecaptchaResponse);// qldarch.net@gmail.com
-    Entity<Form> entity = Entity.form(form);
-    Response response = target.request().post(entity);
-    return response;
   }
 }

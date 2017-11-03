@@ -57,7 +57,7 @@ public class SignUp {
       message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
       message.setFrom(new InternetAddress("no-reply@qldarch.net"));
       message.setSubject("Qldarch Account Activation");
-      final String content = "Click <a href=\"%s/ws/account/activate?id=%s&code=%s\">here"
+      final String content = "Click <a href=\"%sws/account/activate?id=%s&code=%s\">here"
           + "</a> to activate your account.";
       message.setContent(String.format(content, baseUrl, id, activationCode), "text/html; charset=utf-8");
       Transport.send(message);

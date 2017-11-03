@@ -4,10 +4,10 @@ import java.sql.Timestamp;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -51,9 +51,9 @@ public class WsActivateAccount {
     return Response.ok().entity(ActivationResponse.failed()).build();
   }
 
-  @POST
+  @GET
   @Produces(ContentType.JSON)
-  public Response activate(@FormParam("id") Long id, @FormParam("code") String code) {
+  public Response activate(@QueryParam("id") Long id, @QueryParam("code") String code) {
     final User u = users.get(id);
     if(u == null) {
       log.debug("account with id {} does not exist", id);

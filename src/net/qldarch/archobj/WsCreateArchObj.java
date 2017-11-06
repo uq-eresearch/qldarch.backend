@@ -53,7 +53,6 @@ public class WsCreateArchObj {
   @PUT
   @Consumes("application/x-www-form-urlencoded")
   @Produces(ContentType.JSON)
-  @UpdateEntity(entityClass=ArchObj.class)
   @JsonSkipField(type=Media.class, field="depicts")
   @JsonSerializer(type=Utterance.class, serializer=InterviewUtteranceSerializer.class)
   @JsonSerializer(path="$.precededby", serializer=SimpleArchObjSerializer.class)

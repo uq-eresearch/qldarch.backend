@@ -1,6 +1,5 @@
 package net.qldarch.archobj;
 
-import java.io.IOException;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -23,19 +22,13 @@ import net.qldarch.interview.InterviewUtteranceSerializer;
 import net.qldarch.interview.Utterance;
 import net.qldarch.jaxrs.ContentType;
 import net.qldarch.media.Media;
-import net.qldarch.search.Index;
 import net.qldarch.search.update.UpdateArchObjJob;
+import net.qldarch.search.update.SearchIndexWriter;
 import net.qldarch.security.UpdateEntity;
 import net.qldarch.security.User;
 import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 import net.qldarch.util.UpdateUtils;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
 
 @Path("/archobj")
 public class WsUpdateArchObj {
@@ -47,7 +40,7 @@ public class WsUpdateArchObj {
   private User user;
 
   @Inject
-  private Index index;
+  private SearchIndexWriter searchindexwriter;
 
   @POST
   @Path("/{id}")
@@ -115,17 +108,11 @@ public class WsUpdateArchObj {
 
   private void updateIndex(ArchObj archobj) {
     if(archobj != null) {
-      Analyzer analyzer = new StandardAnalyzer();
-      IndexWriterConfig config = new IndexWriterConfig(analyzer);
-      try(Directory directory = index.directory()) {
-        try(IndexWriter writer = new IndexWriter(directory, config)) {
-          new UpdateArchObjJob(archobj).run(writer);
-          writer.commit();
-        } catch(Exception e) {
-          throw new RuntimeException("update search index failed", e);
-        }
-      } catch(IOException e) {
-        throw new RuntimeException("failed to open search directory", e);
+      try {
+        new UpdateArchObjJob(archobj).run(searchindexwriter.getWriter());
+        searchindexwriter.getWriter().commit();
+      } catch(Exception e) {
+        throw new RuntimeException("update search index failed", e);
       }
     }
   }

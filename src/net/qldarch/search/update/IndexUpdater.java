@@ -1,22 +1,14 @@
 package net.qldarch.search.update;
 
-import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-
 import lombok.extern.slf4j.Slf4j;
 import net.qldarch.guice.Bind;
 import net.qldarch.resteasy.Lifecycle;
-import net.qldarch.search.Index;
 
 @Slf4j
 @Bind
@@ -24,7 +16,7 @@ import net.qldarch.search.Index;
 public class IndexUpdater implements Lifecycle {
 
   @Inject
-  private Index index;
+  private SearchIndexWriter searchindexwriter;
 
   private volatile boolean running = false;
 
@@ -41,16 +33,10 @@ public class IndexUpdater implements Lifecycle {
         try {
           IndexUpdateJob job = tasks.take();
           if(job != null) {
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            try(Directory directory = index.directory()) {
-              try(IndexWriter writer = new IndexWriter(directory, config)) {
-                job.run(writer);
-              } catch(Exception e) {
-                log.warn("update search index failed", e);
-              }
-            } catch(IOException e) {
-              log.warn("failed to open search directory", e);
+            try {
+              job.run(searchindexwriter.getWriter());
+            } catch(Exception e) {
+              log.warn("update search index failed", e);
             }
           }
         } catch(InterruptedException e) {

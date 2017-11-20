@@ -1,6 +1,5 @@
 package net.qldarch.media;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -14,17 +13,11 @@ import javax.ws.rs.core.Response;
 
 import net.qldarch.hibernate.HS;
 import net.qldarch.jaxrs.ContentType;
-import net.qldarch.search.Index;
 import net.qldarch.search.update.DeleteDocumentJob;
+import net.qldarch.search.update.SearchIndexWriter;
 import net.qldarch.security.SignedIn;
 import net.qldarch.security.User;
 import net.qldarch.util.M;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
 
 @Path("media")
 public class WsDeleteMedia {
@@ -36,7 +29,7 @@ public class WsDeleteMedia {
   private HS hs;
 
   @Inject
-  private Index index;
+  private SearchIndexWriter searchindexwriter;
 
   @DELETE
   @Path("/{id}")
@@ -49,17 +42,11 @@ public class WsDeleteMedia {
         if(user.isAdmin() || user.getId().equals(media.getOwner())) {
           media.setDeleted(new Timestamp(Instant.now().toEpochMilli()));
           hs.update(media);
-          Analyzer analyzer = new StandardAnalyzer();
-          IndexWriterConfig config = new IndexWriterConfig(analyzer);
-          try(Directory directory = index.directory()) {
-            try(IndexWriter writer = new IndexWriter(directory, config)) {
-              new DeleteDocumentJob(media.getId(), media.getType().toString()).run(writer);
-              writer.commit();
-            } catch(Exception e) {
-              throw new RuntimeException("delete search index failed", e);
-            }
-          } catch(IOException e) {
-            throw new RuntimeException("failed to open search directory", e);
+          try {
+            new DeleteDocumentJob(media.getId(), media.getType().toString()).run(searchindexwriter.getWriter());
+            searchindexwriter.getWriter().commit();
+          } catch(Exception e) {
+            throw new RuntimeException("delete search index failed", e);
           }
           return Response.ok().entity(M.of("id", media.getId(), "filename", media.getFilename())).build();
         }

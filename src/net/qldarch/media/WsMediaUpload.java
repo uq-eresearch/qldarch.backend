@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.LineNumberReader;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import net.qldarch.transcript.Exchange;
 import net.qldarch.transcript.ParseResult;
 import net.qldarch.transcript.Transcripts;
 import net.qldarch.util.ContentDispositionSupport;
+import net.qldarch.util.DateUtil;
 import net.qldarch.util.M;
 import net.qldarch.util.ObjUtils;
 
@@ -114,6 +116,13 @@ public class WsMediaUpload {
     File temp = null;
     String label = null;
     MediaType type = null;
+    String description = null;
+    String creator = null;
+    Date created = null;
+    String rights = null;
+    String identifier = null;
+    String location = null;
+    String projectnumber = null;
     for(InputPart part : input.getParts()) {
       ContentDisposition cd = ContentDispositionSupport.contentDisposition(part.getHeaders());
       if(cd != null) {
@@ -133,6 +142,20 @@ public class WsMediaUpload {
           try {
             type = MediaType.valueOf(getParam(part));
           } catch(Exception e) {}
+        } else if(StringUtils.equals("description", name)) {
+          description = getParam(part);
+        } else if(StringUtils.equals("creator", name)) {
+          creator = getParam(part);
+        } else if(StringUtils.equals("created", name)) {
+          created = DateUtil.toSqlDate(ObjUtils.asDate(getParam(part), "yyyy-MM-dd"));
+        } else if(StringUtils.equals("rights", name)) {
+          rights = getParam(part);
+        } else if(StringUtils.equals("identifier", name)) {
+          identifier = getParam(part);
+        } else if(StringUtils.equals("location", name)) {
+          location = getParam(part);
+        } else if(StringUtils.equals("projectnumber", name)) {
+          projectnumber = getParam(part);
         }
       }
     }
@@ -178,6 +201,27 @@ public class WsMediaUpload {
             media.setDepicts(hs.get(ArchObj.class, depicts));
           }
           media.setOwner(user.getId());
+          if(description != null) {
+            media.setDescription(description);
+          }
+          if(creator != null) {
+            media.setCreator(creator);
+          }
+          if(created != null) {
+            media.setCreated(created);
+          }
+          if(rights != null) {
+            media.setRights(rights);
+          }
+          if(identifier != null) {
+            media.setIdentifier(identifier);
+          }
+          if(location != null) {
+            media.setLocation(location);
+          }
+          if(projectnumber != null) {
+            media.setProjectnumber(projectnumber);
+          }
           hs.save(media);
           if(media.getType().equals(MediaType.Transcript) && isIntvwTscp(fArchive)) {
             Interview interview = hs.get(Interview.class, depicts);

@@ -1,5 +1,6 @@
 package net.qldarch.media;
 
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -11,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import lombok.Data;
 
@@ -43,7 +43,14 @@ public class Thumbnail {
 
   private long filesize;
 
-  @Transient
-  private ContentProvider contentprovider;
+  private byte[] thumbnail;
+
+  private boolean failed;
+
+  private String failmsg;
+
+  public ContentProvider getContentprovider() {
+    return () -> new ByteArrayInputStream(thumbnail);
+  }
 
 }

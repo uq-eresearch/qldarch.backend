@@ -44,7 +44,7 @@ public class WsMedia {
   private HS hs;
 
   @Inject
-  private ThumbnailCache tc;
+  private Thumbnails thumbnails;
 
   private StreamingOutput stream(InputStream in) {
     return out -> IOUtils.copy(in, out);
@@ -127,8 +127,8 @@ public class WsMedia {
   }
 
   private Thumbnail thumbnail(Media media, Dimension dimension) {
-    if(dimension!=null && tc.canThumbnail(media, dimension)) {
-      final CompletableFuture<Thumbnail> promise = tc.get(media, dimension);
+    if(dimension!=null && thumbnails.canCreateThumbnail(media, dimension)) {
+      final CompletableFuture<Thumbnail> promise = thumbnails.get(media, dimension);
       try {
         return promise.getNow(null);
       } catch(Exception e) {}
